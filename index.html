@@ -6,740 +6,536 @@
 <title>Speedy Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
---sky:     #e0f4ff;
---sky2:    #c8eaff;
---sky3:    #a8d8ff;
---blue1:   #5bb8ff;
---blue2:   #2196f3;
---blue3:   #1565c0;
---bluedark:#0d47a1;
---mint:    #e8f9f0;
---green:   #43d98c;
---yellow:  #ffe44d;
---orange:  #ff8c42;
---red:     #ff4b6e;
---white:   #ffffff;
---text:    #1a3a5c;
---textsub: #5b8ab0;
---shadow:  rgba(33,150,243,0.18);
---cardshadow: 0 8px 32px rgba(33,150,243,0.13), 0 2px 8px rgba(0,0,0,0.06);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky:#e0f4ff;--sky2:#c8eaff;
+  --blue1:#5bb8ff;--blue2:#2196f3;--blue3:#1565c0;--bluedark:#0d47a1;
+  --green:#43d98c;--yellow:#ffe44d;--orange:#ff8c42;--red:#ff4b6e;
+  --white:#ffffff;--text:#1a3a5c;--textsub:#5b8ab0;
+  --cardshadow:0 8px 32px rgba(33,150,243,0.13),0 2px 8px rgba(0,0,0,0.06);
+}
+html,body{height:100%;overflow-x:hidden;font-family:'Nunito',sans-serif;color:var(--text);}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 0%,#c3e8ff 0%,transparent 65%),
+    radial-gradient(ellipse 60% 40% at 10% 100%,#d4f0ff 0%,transparent 60%),
+    linear-gradient(180deg,#ddf0ff 0%,#f0faff 40%,#ffffff 100%);
+  display:flex;flex-direction:column;align-items:center;
 }
 
-html, body {
-height: 100%; overflow-x: hidden;
-font-family: 'Nunito', sans-serif;
-background: var(--sky);
-color: var(--text);
+.cloud{position:fixed;border-radius:50px;background:rgba(255,255,255,0.65);pointer-events:none;z-index:0;filter:blur(1px);}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%;}
+.c1{width:110px;height:36px;top:6%;left:-8px;animation:cf 18s linear infinite;}
+.c1::before{width:55px;height:50px;top:-26px;left:18px;}
+.c1::after{width:42px;height:36px;top:-18px;left:56px;}
+.c2{width:80px;height:27px;top:16%;right:-16px;animation:cf 24s linear infinite reverse;opacity:.55;}
+.c2::before{width:40px;height:38px;top:-20px;left:9px;}
+.c2::after{width:30px;height:28px;top:-14px;left:42px;}
+@keyframes cf{0%{transform:translateX(0);}50%{transform:translateX(28px);}100%{transform:translateX(0);}}
+
+.sparkle{position:fixed;pointer-events:none;z-index:0;font-size:1rem;animation:ss 4s ease-in-out infinite;opacity:0.5;}
+.sp1{top:10%;left:78%;}.sp2{top:28%;left:4%;animation-delay:.7s;}
+.sp3{top:68%;left:86%;animation-delay:1.4s;}.sp4{top:78%;left:10%;animation-delay:2s;}
+@keyframes ss{0%,100%{transform:scale(1) rotate(0deg);opacity:.5;}50%{transform:scale(1.4) rotate(20deg);opacity:1;}}
+
+header{
+  position:sticky;top:0;z-index:100;width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(16px);
+  border-bottom:2px solid rgba(91,184,255,0.28);
+  box-shadow:0 3px 18px rgba(33,150,243,0.09);
+}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-ball{
+  width:33px;height:33px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue1),var(--blue2));
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  box-shadow:0 4px 12px rgba(33,150,243,0.38);
+  animation:bounce 2.5s ease-in-out infinite;
+}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.logo-text{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--blue2);letter-spacing:1px;}
+.logo-text span{color:var(--orange);}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.gps-chip{
+  display:flex;align-items:center;gap:5px;
+  background:var(--sky2);border:1.5px solid var(--blue1);
+  border-radius:20px;padding:4px 10px;
+  font-size:0.63rem;font-weight:800;color:var(--blue3);letter-spacing:.8px;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#ccc;transition:all .4s;}
+.dot.on{background:#43d98c;box-shadow:0 0 0 3px rgba(67,217,140,.25);animation:blink 2s infinite;}
+.dot.err{background:var(--orange);box-shadow:0 0 0 3px rgba(255,140,66,.25);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+main{
+  position:relative;z-index:1;
+  width:100%;max-width:430px;
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;
+  padding:16px 14px 30px;
 }
 
-body {
-min-height: 100vh;
-background:
-radial-gradient(ellipse 90% 50% at 50% 0%, #c3e8ff 0%, transparent 65%),
-radial-gradient(ellipse 60% 40% at 10% 100%, #d4f0ff 0%, transparent 60%),
-radial-gradient(ellipse 50% 40% at 90% 80%, #e0f8ff 0%, transparent 60%),
-linear-gradient(180deg, #ddf0ff 0%, #f0faff 40%, #ffffff 100%);
-display: flex;
-flex-direction: column;
-align-items: center;
+.gauge-card{
+  width:100%;background:var(--white);
+  border-radius:28px;padding:22px 16px 18px;
+  box-shadow:var(--cardshadow);
+  border:2px solid rgba(91,184,255,0.22);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.gauge-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--blue1),var(--blue2),var(--blue1));
+  background-size:200%;animation:rslide 3s linear infinite;
+}
+@keyframes rslide{0%{background-position:0%}100%{background-position:200%}}
+
+.gauge-wrap{
+  position:relative;
+  width:min(280px, calc(100vw - 60px));
+  height:min(280px, calc(100vw - 60px));
+}
+.gauge-wrap svg{
+  width:100%;height:100%;
+  transform:rotate(-135deg);
+  filter:drop-shadow(0 4px 16px rgba(33,150,243,0.2));
+}
+#gt{fill:none;stroke:#deeeff;stroke-width:20;stroke-linecap:round;}
+#gshadow{fill:none;stroke:rgba(33,150,243,0.12);stroke-width:26;stroke-linecap:round;
+  stroke-dasharray:553 628;stroke-dashoffset:553;filter:blur(8px);
+  transition:stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1);}
+#gfill{fill:none;stroke:url(#kidGrad);stroke-width:20;stroke-linecap:round;
+  stroke-dasharray:553 628;stroke-dashoffset:553;
+  transition:stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1);}
+#gtip{fill:none;stroke:rgba(255,255,255,0.85);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:553 628;stroke-dashoffset:553;
+  transition:stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1);}
+
+canvas#ticks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+.gauge-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.speed-bubble{
+  width:62%;height:62%;border-radius:50%;
+  background:linear-gradient(145deg,#ffffff 0%,#e6f4ff 100%);
+  border:2.5px solid rgba(91,184,255,0.32);
+  box-shadow:0 0 0 5px rgba(91,184,255,0.07),0 6px 24px rgba(33,150,243,0.16),inset 0 2px 0 rgba(255,255,255,.9);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+}
+#mood-emoji{font-size:1.5rem;animation:mb 2s ease-in-out infinite;}
+@keyframes mb{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+#speed-num{
+  font-family:'Fredoka One',cursive;font-size:clamp(2.8rem,10vw,4.5rem);
+  line-height:1;color:var(--blue2);letter-spacing:-1px;
+  transition:color .3s;
+}
+#speed-num.warn{color:var(--orange);}
+#speed-num.danger{color:var(--red);}
+#unit-lbl{font-size:0.65rem;font-weight:800;letter-spacing:4px;color:var(--textsub);text-transform:uppercase;}
+
+.unit-toggle{
+  display:flex;width:100%;
+  background:var(--sky2);border:2px solid var(--blue1);
+  border-radius:50px;padding:4px;
+}
+.unit-toggle button{
+  flex:1;font-family:'Nunito',sans-serif;
+  font-size:0.73rem;font-weight:800;letter-spacing:2px;padding:10px;
+  border:none;background:none;color:var(--textsub);
+  border-radius:50px;cursor:pointer;transition:all .25s;text-transform:uppercase;
+}
+.unit-toggle button.active{
+  background:linear-gradient(135deg,var(--blue1),var(--blue2));
+  color:white;box-shadow:0 4px 14px rgba(33,150,243,0.38);
 }
 
-/* ── FLOATING CLOUDS (decorative) ── */
-.cloud {
-position: fixed;
-border-radius: 50px;
-background: rgba(255,255,255,0.7);
-pointer-events: none;
-z-index: 0;
-filter: blur(1px);
+#start-btn{
+  width:100%;padding:17px;
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  letter-spacing:3px;text-transform:uppercase;
+  border:none;border-radius:50px;cursor:pointer;
+  background:linear-gradient(135deg,#42b4ff 0%,#1e88e5 50%,#1565c0 100%);
+  color:white;
+  box-shadow:0 8px 24px rgba(33,150,243,0.38),inset 0 1px 0 rgba(255,255,255,.3);
+  transition:all .3s;position:relative;overflow:hidden;
 }
-.cloud::before, .cloud::after {
-content: '';
-position: absolute;
-background: inherit;
-border-radius: 50%;
+#start-btn::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+  transition:left .55s;
 }
-.c1 { width:120px;height:40px;top:8%;left:-10px; animation: cloudFloat 18s linear infinite; }
-.c1::before { width:60px;height:55px;top:-28px;left:20px; }
-.c1::after  { width:45px;height:40px;top:-20px;left:60px; }
-.c2 { width:90px;height:30px;top:18%;right:-20px; animation: cloudFloat 24s linear infinite reverse; opacity:.6; }
-.c2::before { width:45px;height:42px;top:-22px;left:10px; }
-.c2::after  { width:35px;height:32px;top:-16px;left:45px; }
-.c3 { width:70px;height:24px;top:55%;left:5%; animation: cloudFloat 20s linear infinite; opacity:.4; }
-.c3::before { width:36px;height:34px;top:-18px;left:8px; }
-.c3::after  { width:26px;height:26px;top:-12px;left:36px; }
-@keyframes cloudFloat {
-0%   { transform: translateX(0); }
-50%  { transform: translateX(30px); }
-100% { transform: translateX(0); }
+#start-btn:hover::before{left:100%;}
+#start-btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 12px 30px rgba(33,150,243,0.48);}
+#start-btn:active{transform:scale(.97);}
+#start-btn.stop{
+  background:linear-gradient(135deg,#ff6b6b,#f44336,#c62828);
+  box-shadow:0 8px 24px rgba(244,67,54,0.38);
+}
+#reset-btn{
+  background:var(--sky2);border:2px solid var(--blue1);color:var(--blue3);
+  font-family:'Nunito',sans-serif;font-size:0.76rem;font-weight:800;
+  letter-spacing:2px;padding:11px 28px;border-radius:50px;
+  cursor:pointer;text-transform:uppercase;transition:all .25s;width:100%;
+}
+#reset-btn:hover{background:var(--blue1);color:white;transform:translateY(-2px);}
+#msg{
+  font-size:0.73rem;font-weight:700;letter-spacing:.8px;
+  color:var(--textsub);text-align:center;min-height:1.2em;transition:all .3s;
+}
+#msg.ok{color:#28a55e;}
+#msg.error{color:var(--orange);}
+
+.bar-card{
+  width:100%;background:white;
+  border:2px solid rgba(91,184,255,0.18);
+  border-radius:22px;padding:14px 16px;
+  box-shadow:var(--cardshadow);
+}
+.bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.bar-title{font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--blue3);}
+#bar-pct{font-size:0.82rem;font-weight:900;color:var(--blue2);}
+.bar-track{height:13px;background:var(--sky2);border-radius:13px;overflow:hidden;border:1.5px solid rgba(91,184,255,0.18);}
+#bar-fill{
+  height:100%;width:0%;border-radius:13px;
+  background:linear-gradient(90deg,#74cbff,#2196f3,#1565c0);
+  background-size:200% 100%;animation:shimmer 2.5s linear infinite;
+  transition:width .5s ease;box-shadow:0 0 12px rgba(33,150,243,0.4);
+  position:relative;
+}
+#bar-fill::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:7px;
+  background:rgba(255,255,255,0.65);border-radius:50%;filter:blur(3px);
+}
+@keyframes shimmer{0%{background-position:100%}100%{background-position:-100%}}
+.bar-labels{display:flex;justify-content:space-between;margin-top:6px;}
+.bar-labels span{font-size:0.57rem;font-weight:700;color:var(--textsub);}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
+.stat-card{
+  background:white;border:2px solid rgba(91,184,255,0.18);
+  border-radius:20px;padding:14px 12px;
+  box-shadow:var(--cardshadow);
+  display:flex;flex-direction:column;gap:3px;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.stat-card:active{transform:translateY(-2px);}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 18px 18px;}
+.stat-card.blue::after{background:linear-gradient(90deg,var(--blue1),var(--blue2));}
+.stat-card.green::after{background:linear-gradient(90deg,#43d98c,#00bfa5);}
+.stat-card.yellow::after{background:linear-gradient(90deg,var(--yellow),var(--orange));}
+.stat-card.red::after{background:linear-gradient(90deg,var(--orange),var(--red));}
+.sc-emoji{font-size:1.25rem;}
+.sc-label{font-size:0.58rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--textsub);}
+.sc-value{font-family:'Fredoka One',cursive;font-size:1.65rem;color:var(--text);line-height:1;}
+.sc-unit{font-size:0.57rem;font-weight:700;color:var(--textsub);}
+
+footer{
+  width:100%;text-align:center;padding:10px 8px;
+  font-size:0.58rem;font-weight:700;letter-spacing:1.5px;color:var(--textsub);
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(12px);
+  border-top:1.5px solid rgba(91,184,255,0.2);
 }
 
-/* ── STARS / SPARKLES ── */
-.sparkle {
-position: fixed;
-pointer-events: none;
-z-index: 0;
-font-size: 1.1rem;
-animation: sparkleSpin 4s ease-in-out infinite;
-opacity: 0.55;
-}
-.sp1{top:12%;left:80%;animation-delay:0s;}
-.sp2{top:30%;left:5%;animation-delay:.7s;}
-.sp3{top:70%;left:88%;animation-delay:1.4s;}
-.sp4{top:80%;left:12%;animation-delay:2s;}
-.sp5{top:45%;left:92%;animation-delay:.3s;}
-@keyframes sparkleSpin {
-0%,100%{transform:scale(1) rotate(0deg);opacity:.55;}
-50%{transform:scale(1.4) rotate(20deg);opacity:1;}
-}
-
-/* ── HEADER ── */
-header {
-position: fixed; top:0; left:0; right:0; z-index: 100;
-display: flex; align-items: center; justify-content: space-between;
-padding: 12px 20px;
-background: rgba(255,255,255,0.82);
-backdrop-filter: blur(16px);
-border-bottom: 2.5px solid rgba(91,184,255,0.3);
-box-shadow: 0 4px 20px rgba(33,150,243,0.1);
-}
-.logo {
-display: flex; align-items: center; gap: 10px;
-}
-.logo-ball {
-width: 36px; height: 36px; border-radius: 50%;
-background: linear-gradient(135deg, var(--blue1), var(--blue2));
-display: flex; align-items: center; justify-content: center;
-font-size: 18px;
-box-shadow: 0 4px 14px rgba(33,150,243,0.4);
-animation: bounce 2.5s ease-in-out infinite;
-}
-@keyframes bounce {
-0%,100%{transform:translateY(0);}
-50%{transform:translateY(-4px);}
-}
-.logo-text {
-font-family: 'Fredoka One', cursive;
-font-size: 1.25rem;
-color: var(--blue2);
-letter-spacing: 1px;
-line-height: 1;
-}
-.logo-text span { color: var(--orange); }
-
-.header-right { display:flex; align-items:center; gap:10px; }
-.gps-chip {
-display: flex; align-items: center; gap: 6px;
-background: var(--sky2);
-border: 1.5px solid var(--blue1);
-border-radius: 20px;
-padding: 5px 12px;
-font-size: 0.68rem;
-font-weight: 700;
-color: var(--blue3);
-letter-spacing: 1px;
-}
-#gps-acc { color: var(--blue2); }
-.dot {
-width: 9px; height: 9px; border-radius: 50%;
-background: #ccc; transition: all .4s;
-}
-.dot.on  { background:#43d98c; box-shadow:0 0 0 3px rgba(67,217,140,.25); animation:blink 2s infinite; }
-.dot.err { background:var(--orange); box-shadow:0 0 0 3px rgba(255,140,66,.25); }
-@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.4;} }
-
-/* ── MAIN ── */
-main {
-position: relative; z-index: 1;
-width: 100%; max-width: 440px;
-display: flex; flex-direction: column; align-items: center;
-gap: 18px;
-padding: 82px 16px 88px;
-overflow-y: auto; max-height: 100vh;
-}
-
-/* ── GAUGE CARD ── */
-.gauge-card {
-width: 100%;
-background: var(--white);
-border-radius: 32px;
-padding: 28px 20px 24px;
-box-shadow: var(--cardshadow);
-border: 2px solid rgba(91,184,255,0.25);
-display: flex; flex-direction: column; align-items: center; gap: 18px;
-position: relative; overflow: hidden;
-}
-.gauge-card::before {
-content: '';
-position: absolute; top:0; left:0; right:0; height:5px;
-background: linear-gradient(90deg, var(--blue1), var(--blue2), var(--blue1));
-background-size: 200%;
-animation: rainbowSlide 3s linear infinite;
-}
-@keyframes rainbowSlide {
-0%{background-position:0%} 100%{background-position:200%}
-}
-
-/* gauge wrap */
-.gauge-wrap {
-position: relative; width: 260px; height: 260px;
-}
-.gauge-wrap svg {
-width:100%; height:100%;
-transform: rotate(-135deg);
-filter: drop-shadow(0 4px 18px rgba(33,150,243,0.22));
-}
-
-/* rings */
-#gt { fill:none; stroke:#e8f3ff; stroke-width:20; stroke-linecap:round; }
-#gshadow { fill:none; stroke:rgba(33,150,243,0.15); stroke-width:26; stroke-linecap:round;
-stroke-dasharray:565 628; stroke-dashoffset:565;
-filter:blur(10px);
-transition: stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1); }
-#gfill { fill:none; stroke:url(#kidGrad); stroke-width:20; stroke-linecap:round;
-stroke-dasharray:565 628; stroke-dashoffset:565;
-transition: stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1); }
-#gtip { fill:none; stroke:white; stroke-width:4; stroke-linecap:round;
-stroke-dasharray:565 628; stroke-dashoffset:565;
-transition: stroke-dashoffset .5s cubic-bezier(.25,.9,.4,1); }
-
-canvas#ticks {
-position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
-}
-
-/* center circle */
-.gauge-center {
-position:absolute; inset:0;
-display:flex; flex-direction:column; align-items:center; justify-content:center;
-}
-.speed-bubble {
-width:168px; height:168px; border-radius:50%;
-background: linear-gradient(145deg, #ffffff 0%, #e8f6ff 100%);
-border: 3px solid rgba(91,184,255,0.35);
-box-shadow:
-0 0 0 6px rgba(91,184,255,0.08),
-0 8px 28px rgba(33,150,243,0.18),
-inset 0 2px 0 rgba(255,255,255,0.9);
-display:flex; flex-direction:column; align-items:center; justify-content:center;
-gap: 2px;
-}
-#speed-num {
-font-family: 'Fredoka One', cursive;
-font-size: 5rem;
-line-height: 1;
-color: var(--blue2);
-text-shadow: 0 4px 14px rgba(33,150,243,0.25);
-transition: color .3s;
-letter-spacing: -1px;
-}
-#speed-num.warn   { color: var(--orange); text-shadow: 0 4px 14px rgba(255,140,66,.4); }
-#speed-num.danger { color: var(--red);    text-shadow: 0 4px 14px rgba(255,75,110,.4); }
-#unit-lbl {
-font-size: 0.72rem; font-weight: 800; letter-spacing: 4px;
-color: var(--textsub); text-transform:uppercase;
-}
-
-/* emoji mood */
-#mood-emoji {
-font-size: 1.6rem;
-transition: all .3s;
-animation: moodBounce 2s ease-in-out infinite;
-}
-@keyframes moodBounce {
-0%,100%{transform:scale(1);} 50%{transform:scale(1.15);}
-}
-
-/* ── UNIT TOGGLE ── */
-.unit-toggle {
-display: flex; gap:0;
-background: var(--sky2);
-border: 2px solid var(--blue1);
-border-radius: 50px; padding: 4px;
-}
-.unit-toggle button {
-font-family: 'Nunito', sans-serif;
-font-size: 0.75rem; font-weight: 800;
-letter-spacing: 2px; padding: 8px 24px;
-border:none; background:none; color:var(--textsub);
-border-radius:50px; cursor:pointer; transition:all .25s; text-transform:uppercase;
-}
-.unit-toggle button.active {
-background: linear-gradient(135deg, var(--blue1), var(--blue2));
-color: white;
-box-shadow: 0 4px 14px rgba(33,150,243,0.4);
-transform: scale(1.03);
-}
-
-/* ── SPEED BAR ── */
-.bar-card {
-width:100%; background:white;
-border:2px solid rgba(91,184,255,0.2);
-border-radius:22px; padding:16px 20px;
-box-shadow: var(--cardshadow);
-}
-.bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.bar-title {
-font-size:0.72rem; font-weight:800; letter-spacing:2px;
-text-transform:uppercase; color:var(--blue3);
-display:flex; align-items:center; gap:6px;
-}
-#bar-pct { font-size:0.85rem; font-weight:900; color:var(--blue2); }
-.bar-track {
-height:14px; background:var(--sky2);
-border-radius:14px; overflow:hidden;
-border: 1.5px solid rgba(91,184,255,0.2);
-}
-#bar-fill {
-height:100%; width:0%; border-radius:14px;
-background: linear-gradient(90deg, #74cbff, #2196f3, #1565c0);
-background-size:200% 100%;
-animation: shimmer 2.5s linear infinite;
-transition: width .5s ease;
-box-shadow: 0 0 14px rgba(33,150,243,0.45);
-position:relative;
-}
-#bar-fill::after {
-content:'';
-position:absolute; right:0; top:0; bottom:0; width:8px;
-background: rgba(255,255,255,0.7);
-border-radius:50%;
-filter:blur(3px);
-}
-@keyframes shimmer { 0%{background-position:100%} 100%{background-position:-100%} }
-.bar-labels { display:flex; justify-content:space-between; margin-top:7px; }
-.bar-labels span { font-size:0.6rem; font-weight:700; color:var(--textsub); }
-
-/* ── STATS GRID ── */
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; }
-.stat-card {
-background:white;
-border:2px solid rgba(91,184,255,0.2);
-border-radius:22px; padding:16px;
-box-shadow: var(--cardshadow);
-display:flex; flex-direction:column; gap:4px;
-transition: transform .2s, box-shadow .2s;
-position:relative; overflow:hidden;
-}
-.stat-card:hover { transform:translateY(-3px); box-shadow:0 14px 36px rgba(33,150,243,0.2); }
-.stat-card::after {
-content:''; position:absolute; bottom:0; left:0; right:0; height:4px;
-border-radius:0 0 20px 20px;
-}
-.stat-card.blue::after  { background:linear-gradient(90deg,var(--blue1),var(--blue2)); }
-.stat-card.green::after { background:linear-gradient(90deg,#43d98c,#00bfa5); }
-.stat-card.yellow::after{ background:linear-gradient(90deg,var(--yellow),var(--orange)); }
-.stat-card.red::after   { background:linear-gradient(90deg,var(--orange),var(--red)); }
-
-.sc-emoji { font-size:1.4rem; }
-.sc-label { font-size:0.62rem; font-weight:800; letter-spacing:2px;
-text-transform:uppercase; color:var(--textsub); }
-.sc-value { font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--text); line-height:1; }
-.sc-unit  { font-size:0.6rem; font-weight:700; color:var(--textsub); }
-
-/* ── CONTROLS ── */
-.controls { width:100%; display:flex; flex-direction:column; align-items:center; gap:12px; }
-
-#start-btn {
-width:100%; max-width:280px; padding:17px;
-font-family:'Fredoka One',cursive;
-font-size:1.1rem; letter-spacing:3px; text-transform:uppercase;
-border:none; border-radius:50px; cursor:pointer;
-background: linear-gradient(135deg, #42b4ff 0%, #1e88e5 50%, #1565c0 100%);
-color:white;
-box-shadow:
-0 8px 24px rgba(33,150,243,0.4),
-0 2px 6px rgba(0,0,0,0.1),
-inset 0 1px 0 rgba(255,255,255,0.35);
-transition:all .3s;
-position:relative; overflow:hidden;
-}
-#start-btn::before {
-content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
-background: linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-transition: left .55s;
-}
-#start-btn:hover::before { left:100%; }
-#start-btn:hover {
-transform:translateY(-3px) scale(1.02);
-box-shadow:0 14px 32px rgba(33,150,243,0.5);
-}
-#start-btn:active { transform:scale(.97); }
-#start-btn.stop {
-background:linear-gradient(135deg,#ff6b6b,#f44336,#c62828);
-box-shadow:0 8px 24px rgba(244,67,54,0.4);
-}
-.btn-icon-wrap {
-display:inline-flex; align-items:center; gap:10px;
-}
-
-#reset-btn {
-background:var(--sky2); border:2px solid var(--blue1);
-color:var(--blue3); font-family:'Nunito',sans-serif;
-font-size:0.8rem; font-weight:800; letter-spacing:2px;
-padding:10px 28px; border-radius:50px; cursor:pointer;
-text-transform:uppercase; transition:all .25s;
-}
-#reset-btn:hover {
-background:var(--blue1); color:white;
-box-shadow:0 6px 18px rgba(33,150,243,0.35);
-transform:translateY(-2px);
-}
-
-#msg {
-font-size:0.78rem; font-weight:700; letter-spacing:1px;
-color:var(--textsub); text-align:center; min-height:1.3em;
-transition:all .3s;
-}
-#msg.ok    { color:#28a55e; }
-#msg.error { color:var(--orange); }
-
-/* ── FOOTER ── */
-footer {
-position:fixed; bottom:0; left:0; right:0; z-index:100;
-text-align:center; padding:10px;
-font-size:0.62rem; font-weight:700; letter-spacing:2px;
-color:var(--textsub);
-background:rgba(255,255,255,0.88);
-backdrop-filter:blur(14px);
-border-top:2px solid rgba(91,184,255,0.2);
-}
-
-/* ── PAGE LOAD ANIMATION ── */
-@keyframes fadeUp {
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
-}
-.gauge-card   { animation:fadeUp .5s ease both; }
-.unit-toggle  { animation:fadeUp .5s .1s ease both; }
-.bar-card     { animation:fadeUp .5s .15s ease both; }
-.stats-grid   { animation:fadeUp .5s .2s ease both; }
-.controls     { animation:fadeUp .5s .25s ease both; }
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.gauge-card{animation:fadeUp .45s ease both;}
+.unit-toggle{animation:fadeUp .45s .08s ease both;}
+#start-btn{animation:fadeUp .45s .13s ease both;}
+#reset-btn{animation:fadeUp .45s .17s ease both;}
+#msg{animation:fadeUp .45s .2s ease both;}
+.bar-card{animation:fadeUp .45s .23s ease both;}
+.stats-grid{animation:fadeUp .45s .28s ease both;}
 </style>
 </head>
 <body>
 
-<!-- CLOUDS -->
 <div class="cloud c1"></div>
 <div class="cloud c2"></div>
-<div class="cloud c3"></div>
+<div class="sparkle sp1">&#11088;</div>
+<div class="sparkle sp2">&#10024;</div>
+<div class="sparkle sp3">&#127775;</div>
+<div class="sparkle sp4">&#11088;</div>
 
-<!-- SPARKLES -->
-<div class="sparkle sp1">⭐</div>
-<div class="sparkle sp2">✨</div>
-<div class="sparkle sp3">🌟</div>
-<div class="sparkle sp4">⭐</div>
-<div class="sparkle sp5">✨</div>
-
-<!-- HEADER -->
 <header>
-<div class="logo">
-<div class="logo-ball">🚀</div>
-<div>
-<div class="logo-text">Speedy<span>Speedo</span></div>
-</div>
-</div>
-<div class="header-right">
-<div class="gps-chip">
-📡 <span id="gps-acc">— m</span>
-</div>
-<div class="dot" id="dot"></div>
-</div>
+  <div class="logo">
+    <div class="logo-ball">&#128640;</div>
+    <div class="logo-text">Speedy<span>Speedo</span></div>
+  </div>
+  <div class="hdr-right">
+    <div class="gps-chip">&#128225; <span id="gps-acc">&#8212; m</span></div>
+    <div class="dot" id="dot"></div>
+  </div>
 </header>
 
-<!-- MAIN -->
 <main>
 
-<!-- GAUGE CARD -->
-<div class="gauge-card">
+  <div class="gauge-card">
+    <div class="gauge-wrap">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="kidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#74cbff"/>
+            <stop offset="40%"  stop-color="#2196f3"/>
+            <stop offset="75%"  stop-color="#1565c0"/>
+            <stop offset="100%" stop-color="#0d47a1"/>
+          </linearGradient>
+        </defs>
+        <circle id="gt"      cx="100" cy="100" r="88" stroke-dasharray="553 628"/>
+        <circle id="gshadow" cx="100" cy="100" r="88"/>
+        <circle id="gfill"   cx="100" cy="100" r="88"/>
+        <circle id="gtip"    cx="100" cy="100" r="88"/>
+      </svg>
+      <canvas id="ticks"></canvas>
+      <div class="gauge-center">
+        <div class="speed-bubble">
+          <div id="mood-emoji">&#128564;</div>
+          <div id="speed-num">0</div>
+          <div id="unit-lbl">KM/H</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="gauge-wrap">
-<svg viewBox="0 0 200 200">
-<defs>
-<linearGradient id="kidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-<stop offset="0%"   stop-color="#74cbff"/>
-<stop offset="40%"  stop-color="#2196f3"/>
-<stop offset="75%"  stop-color="#1565c0"/>
-<stop offset="100%" stop-color="#0d47a1"/>
-</linearGradient>
-</defs>
-<circle id="gt" cx="100" cy="100" r="88" stroke-dasharray="553 628"/>
-<circle id="gshadow" cx="100" cy="100" r="88"/>
-<circle id="gfill"   cx="100" cy="100" r="88"/>
-<circle id="gtip"    cx="100" cy="100" r="88"/>
-</svg>
-<canvas id="ticks"></canvas>
-<div class="gauge-center">
-<div class="speed-bubble">
-<div id="mood-emoji">😊</div>
-<div id="speed-num">0</div>
-<div id="unit-lbl">KM/H</div>
-</div>
-</div>
-</div>
+  <div class="unit-toggle">
+    <button id="btn-kmh" class="active" onclick="setUnit('kmh')">KM/H</button>
+    <button id="btn-mph" onclick="setUnit('mph')">MPH</button>
+  </div>
 
-</div>
+  <button id="start-btn" onclick="toggleTracking()">
+    <span id="btn-icon">&#9654;</span> <span id="btn-txt">Start Tracking</span>
+  </button>
+  <button id="reset-btn" onclick="resetAll()">&#8634; Reset Stats</button>
+  <div id="msg">Tap Start &amp; allow location to begin!</div>
 
-<!-- UNIT TOGGLE -->
-<div class="unit-toggle">
-<button id="btn-kmh" class="active" onclick="setUnit('kmh')">🇰🇲 KM/H</button>
-<button id="btn-mph"               onclick="setUnit('mph')">🇺🇸 MPH</button>
-</div>
+  <div class="bar-card">
+    <div class="bar-top">
+      <div class="bar-title">&#9889; Speed Level</div>
+      <div id="bar-pct">0%</div>
+    </div>
+    <div class="bar-track"><div id="bar-fill"></div></div>
+    <div class="bar-labels">
+      <span>0</span><span>30</span><span>60</span><span>90</span><span>120</span><span>150+</span>
+    </div>
+  </div>
 
-<!-- SPEED BAR -->
-<div class="bar-card">
-<div class="bar-top">
-<div class="bar-title">⚡ Speed Level</div>
-<div id="bar-pct">0%</div>
-</div>
-<div class="bar-track"><div id="bar-fill"></div></div>
-<div class="bar-labels">
-<span>🐢 0</span><span>30</span><span>60</span><span>90</span><span>120</span><span>🚀 150+</span>
-</div>
-</div>
-
-<!-- STATS -->
-<div class="stats-grid">
-<div class="stat-card blue">
-<div class="sc-emoji">🏆</div>
-<div class="sc-label">Max Speed</div>
-<div class="sc-value" id="st-max">0</div>
-<div class="sc-unit" id="st-max-u">km/h peak</div>
-</div>
-<div class="stat-card green">
-<div class="sc-emoji">📈</div>
-<div class="sc-label">Avg Speed</div>
-<div class="sc-value" id="st-avg">0</div>
-<div class="sc-unit">moving avg</div>
-</div>
-<div class="stat-card yellow">
-<div class="sc-emoji">🗺️</div>
-<div class="sc-label">Distance</div>
-<div class="sc-value" id="st-dist">0.00</div>
-<div class="sc-unit" id="st-dist-u">km</div>
-</div>
-<div class="stat-card red">
-<div class="sc-emoji">⏱️</div>
-<div class="sc-label">Time</div>
-<div class="sc-value" id="st-time">00:00</div>
-<div class="sc-unit">elapsed</div>
-</div>
-</div>
-
-<!-- CONTROLS -->
-<div class="controls">
-<button id="start-btn" onclick="toggleTracking()">
-<div class="btn-icon-wrap"><span id="btn-icon">▶</span> <span id="btn-txt">Start Tracking</span></div>
-</button>
-<button id="reset-btn" onclick="resetAll()">↺ Reset Stats</button>
-<div id="msg">Tap Start & allow location to begin! 🚀</div>
-</div>
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="sc-emoji">&#127942;</div>
+      <div class="sc-label">Max Speed</div>
+      <div class="sc-value" id="st-max">0</div>
+      <div class="sc-unit" id="st-max-u">km/h peak</div>
+    </div>
+    <div class="stat-card green">
+      <div class="sc-emoji">&#128200;</div>
+      <div class="sc-label">Avg Speed</div>
+      <div class="sc-value" id="st-avg">0</div>
+      <div class="sc-unit">moving avg</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="sc-emoji">&#128506;</div>
+      <div class="sc-label">Distance</div>
+      <div class="sc-value" id="st-dist">0.00</div>
+      <div class="sc-unit" id="st-dist-u">km</div>
+    </div>
+    <div class="stat-card red">
+      <div class="sc-emoji">&#9201;</div>
+      <div class="sc-label">Time</div>
+      <div class="sc-value" id="st-time">00:00</div>
+      <div class="sc-unit">elapsed</div>
+    </div>
+  </div>
 
 </main>
 
-<footer>📍 NEEDS LOCATION PERMISSION · 🛡️ SAFE RIDING ONLY · 🔋 KEEP SCREEN ON</footer>
+<footer>NEEDS LOCATION PERMISSION &middot; SAFE RIDING ONLY &middot; KEEP SCREEN ON</footer>
 
 <script>
-// ── TICK CANVAS ──────────────────────────────────────────────
-(function() {
-const cv = document.getElementById('ticks');
-cv.width = 260; cv.height = 260;
-const ctx = cv.getContext('2d');
-const cx = 130, cy = 130, r = 115;
-const sa = 135 * Math.PI / 180;
-const ta = 270 * Math.PI / 180;
-const total = 50;
-
-for (let i = 0; i <= total; i++) {
-const ang = sa + (i / total) * ta;
-const maj = i % 5 === 0;
-const len = maj ? 14 : 7;
-ctx.beginPath();
-ctx.moveTo(cx + (r-1)*Math.cos(ang), cy + (r-1)*Math.sin(ang));
-ctx.lineTo(cx + (r-1-len)*Math.cos(ang), cy + (r-1-len)*Math.sin(ang));
-ctx.strokeStyle = maj ? 'rgba(33,150,243,0.5)' : 'rgba(33,150,243,0.18)';
-ctx.lineWidth = maj ? 2.5 : 1.2;
-ctx.lineCap = 'round';
-ctx.stroke();
-
-if (maj) {
-const lr = r - 1 - len - 14;
-const lx = cx + lr * Math.cos(ang);
-const ly = cy + lr * Math.sin(ang);
-ctx.save();
-ctx.translate(lx, ly);
-ctx.rotate(ang + Math.PI / 2);
-ctx.font = '800 9px Nunito, sans-serif';
-ctx.fillStyle = 'rgba(21,101,192,0.6)';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-ctx.fillText(Math.round((i / total) * 200), 0, 0);
-ctx.restore();
-}
-}
+(function(){
+  var canvas = document.getElementById('ticks');
+  var wrap   = canvas.parentElement;
+  var size   = wrap.offsetWidth || 280;
+  canvas.width = canvas.height = size;
+  var ctx = canvas.getContext('2d');
+  var cx = size/2, cy = size/2, r = size * 0.44;
+  var sa = 135 * Math.PI/180, ta = 270 * Math.PI/180;
+  var total = 50;
+  for(var i=0; i<=total; i++){
+    var ang = sa + (i/total)*ta;
+    var maj = i%5===0;
+    var len = maj ? size*0.052 : size*0.026;
+    ctx.beginPath();
+    ctx.moveTo(cx+(r-1)*Math.cos(ang), cy+(r-1)*Math.sin(ang));
+    ctx.lineTo(cx+(r-1-len)*Math.cos(ang), cy+(r-1-len)*Math.sin(ang));
+    ctx.strokeStyle = maj ? 'rgba(33,150,243,0.48)' : 'rgba(33,150,243,0.17)';
+    ctx.lineWidth   = maj ? 2.2 : 1.1;
+    ctx.lineCap     = 'round';
+    ctx.stroke();
+    if(maj){
+      var lr = r-1-len-size*0.052;
+      ctx.save();
+      ctx.translate(cx+lr*Math.cos(ang), cy+lr*Math.sin(ang));
+      ctx.rotate(ang+Math.PI/2);
+      ctx.font = '800 ' + Math.round(size*0.034) + 'px Nunito,sans-serif';
+      ctx.fillStyle = 'rgba(21,101,192,0.58)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(Math.round((i/total)*200), 0, 0);
+      ctx.restore();
+    }
+  }
 })();
 
-// ── STATE ────────────────────────────────────────────────────
-let unit = 'kmh', tracking = false, watchId = null;
-let curSpd = 0, maxSpd = 0, samples = [];
-let startTime = null, timerInt = null;
-let dist = 0, lastPos = null;
-const DASH = 553, MAXREF = 200;
+var unit='kmh', tracking=false, watchId=null;
+var curSpd=0, maxSpd=0, samples=[];
+var startTime=null, timerInt=null;
+var dist=0, lastPos=null;
+var DASH=553, MAXREF=200;
 
-// moods by speed
-const moods = [
-[0,   '😴'],
-[5,   '🚶'],
-[20,  '🚲'],
-[50,  '🚗'],
-[90,  '🚀'],
-[120, '⚡'],
-];
-function getMood(kmh) {
-let emoji = '😴';
-for (const [spd, em] of moods) if (kmh >= spd) emoji = em;
-return emoji;
+var moods=[[0,'&#128564;'],[5,'&#128694;'],[20,'&#128690;'],[50,'&#128663;'],[90,'&#128640;'],[120,'&#9889;']];
+function getMood(k){var e='&#128564;';for(var i=0;i<moods.length;i++){if(k>=moods[i][0])e=moods[i][1];}return e;}
+
+function setUnit(u){
+  unit=u;
+  document.getElementById('btn-kmh').classList.toggle('active',u==='kmh');
+  document.getElementById('btn-mph').classList.toggle('active',u==='mph');
+  document.getElementById('unit-lbl').textContent = u==='kmh'?'KM/H':'MPH';
+  document.getElementById('st-dist-u').textContent = u==='kmh'?'km':'mi';
+  document.getElementById('st-max-u').textContent  = u==='kmh'?'km/h peak':'mph peak';
+  render(curSpd);
 }
 
-// ── UNIT ─────────────────────────────────────────────────────
-function setUnit(u) {
-unit = u;
-document.getElementById('btn-kmh').classList.toggle('active', u==='kmh');
-document.getElementById('btn-mph').classList.toggle('active', u==='mph');
-document.getElementById('unit-lbl').textContent = u==='kmh' ? 'KM/H' : 'MPH';
-document.getElementById('st-dist-u').textContent = u==='kmh' ? 'km' : 'mi';
-document.getElementById('st-max-u').textContent  = u==='kmh' ? 'km/h peak' : 'mph peak';
-render(curSpd);
-}
-const cv   = kmh => unit==='kmh' ? kmh : kmh*0.621371;
-const cvDist = km => unit==='kmh' ? km  : km*0.621371;
+function cv(k){ return unit==='kmh' ? k : k*0.621371; }
+function cvDist(k){ return unit==='kmh' ? k : k*0.621371; }
 
-// ── GAUGE ────────────────────────────────────────────────────
-function setGauge(kmh) {
-const off = DASH - Math.min(kmh/MAXREF,1)*DASH;
-['gfill','gshadow','gtip'].forEach(id =>
-document.getElementById(id).style.strokeDashoffset = off);
+function setGauge(kmh){
+  var off = DASH - Math.min(kmh/MAXREF,1)*DASH;
+  ['gfill','gshadow','gtip'].forEach(function(id){
+    document.getElementById(id).style.strokeDashoffset=off;
+  });
 }
 
-// ── RENDER ───────────────────────────────────────────────────
-function render(kmh) {
-const d = Math.round(cv(kmh));
-const el = document.getElementById('speed-num');
-el.textContent = d;
-el.classList.remove('warn','danger');
-if (kmh > 120) el.classList.add('danger');
-else if (kmh > 80) el.classList.add('warn');
+function render(kmh){
+  var el = document.getElementById('speed-num');
+  el.textContent = Math.round(cv(kmh));
+  el.classList.remove('warn','danger');
+  if(kmh>120){ el.classList.add('danger'); }
+  else if(kmh>80){ el.classList.add('warn'); }
 
-document.getElementById('mood-emoji').textContent = getMood(kmh);
-setGauge(kmh);
+  document.getElementById('mood-emoji').innerHTML = getMood(kmh);
+  setGauge(kmh);
 
-const pct = Math.min((kmh/150)*100, 100);
-document.getElementById('bar-fill').style.width = pct + '%';
-document.getElementById('bar-pct').textContent  = Math.round(pct) + '%';
+  var pct = Math.min((kmh/150)*100,100);
+  document.getElementById('bar-fill').style.width = pct+'%';
+  document.getElementById('bar-pct').textContent  = Math.round(pct)+'%';
 
-document.getElementById('st-max').textContent  = Math.round(cv(maxSpd));
-const avg = samples.length ? samples.reduce((a,b)=>a+b,0)/samples.length : 0;
-document.getElementById('st-avg').textContent  = Math.round(cv(avg));
-document.getElementById('st-dist').textContent = cvDist(dist).toFixed(2);
+  document.getElementById('st-max').textContent  = Math.round(cv(maxSpd));
+  var avg = samples.length ? samples.reduce(function(a,b){return a+b;},0)/samples.length : 0;
+  document.getElementById('st-avg').textContent  = Math.round(cv(avg));
+  document.getElementById('st-dist').textContent = cvDist(dist).toFixed(2);
 }
 
-// ── TIMER ────────────────────────────────────────────────────
-function startTimer() {
-startTime = Date.now();
-timerInt = setInterval(() => {
-const s = Math.floor((Date.now()-startTime)/1000);
-document.getElementById('st-time').textContent =
-String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}, 1000);
+function startTimer(){
+  startTime=Date.now();
+  timerInt=setInterval(function(){
+    var s=Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('st-time').textContent=
+      String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  },1000);
 }
 
-// ── HAVERSINE ────────────────────────────────────────────────
-function hav(a,b,c,d) {
-const R=6371, r=Math.PI/180;
-const dlat=(c-a)*r, dlon=(d-b)*r;
-const x=Math.sin(dlat/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dlon/2)**2;
-return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+function hav(a,b,c,d){
+  var R=6371, rad=Math.PI/180;
+  var dlat=(c-a)*rad, dlon=(d-b)*rad;
+  var x=Math.sin(dlat/2)*Math.sin(dlat/2)+Math.cos(a*rad)*Math.cos(c*rad)*Math.sin(dlon/2)*Math.sin(dlon/2);
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-// ── GPS ──────────────────────────────────────────────────────
-function onPos(pos) {
-document.getElementById('dot').className = 'dot on';
-document.getElementById('gps-acc').textContent = '±'+Math.round(pos.coords.accuracy)+'m';
+function onPos(pos){
+  document.getElementById('dot').className='dot on';
+  document.getElementById('gps-acc').textContent='\u00b1'+Math.round(pos.coords.accuracy)+'m';
 
-let kmh = 0;
-if (pos.coords.speed !== null && pos.coords.speed >= 0) kmh = pos.coords.speed * 3.6;
-curSpd = kmh;
-if (kmh > maxSpd) maxSpd = kmh;
-if (kmh > 0) { samples.push(kmh); if (samples.length > 80) samples.shift(); }
+  var kmh=0;
+  if(pos.coords.speed!==null && pos.coords.speed>=0){ kmh=pos.coords.speed*3.6; }
+  curSpd=kmh;
+  if(kmh>maxSpd){ maxSpd=kmh; }
+  if(kmh>0){ samples.push(kmh); if(samples.length>80){ samples.shift(); } }
 
-if (lastPos) {
-const d = hav(lastPos.coords.latitude, lastPos.coords.longitude,
-pos.coords.latitude, pos.coords.longitude);
-if (d < 0.5) dist += d;
-}
-lastPos = pos;
-render(kmh);
-setMsg('🟢 Live GPS tracking active!', 'ok');
-}
-
-function onErr(e) {
-const msgs = {
-1:'❌ Location denied! Please allow GPS in settings.',
-2:'📡 No GPS signal. Please go outdoors.',
-3:'⏱️ GPS timed out. Tap stop & retry.'
-};
-setMsg(msgs[e.code] || '⚠️ GPS error.', 'error');
-document.getElementById('dot').className = 'dot err';
+  if(lastPos){
+    var d=hav(
+      lastPos.coords.latitude, lastPos.coords.longitude,
+      pos.coords.latitude,     pos.coords.longitude
+    );
+    if(d<0.5){ dist+=d; }
+  }
+  lastPos=pos;
+  render(kmh);
+  setMsg('Live GPS tracking active!','ok');
 }
 
-// ── TRACKING ─────────────────────────────────────────────────
-function toggleTracking() { tracking ? stop() : start(); }
-
-function start() {
-if (!navigator.geolocation) { setMsg('❌ Browser not supported.','error'); return; }
-tracking = true;
-document.getElementById('btn-icon').textContent = '■';
-document.getElementById('btn-txt').textContent  = 'Stop Tracking';
-document.getElementById('start-btn').classList.add('stop');
-setMsg('📡 Searching for GPS signal…');
-startTimer();
-watchId = navigator.geolocation.watchPosition(onPos, onErr,
-{ enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+function onErr(e){
+  var msgs={
+    1:'Location denied! Allow GPS in settings.',
+    2:'No GPS signal. Go outdoors.',
+    3:'GPS timed out. Stop and retry.'
+  };
+  setMsg(msgs[e.code]||'GPS error.','error');
+  document.getElementById('dot').className='dot err';
 }
 
-function stop() {
-tracking = false;
-if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-clearInterval(timerInt);
-curSpd = 0;
-document.getElementById('btn-icon').textContent = '▶';
-document.getElementById('btn-txt').textContent  = 'Start Tracking';
-document.getElementById('start-btn').classList.remove('stop');
-document.getElementById('dot').className = 'dot';
-render(0);
-setMsg('⏹️ Tracking stopped');
+function toggleTracking(){ if(tracking){ stop(); } else { start(); } }
+
+function start(){
+  if(!navigator.geolocation){ setMsg('Browser not supported.','error'); return; }
+  tracking=true;
+  document.getElementById('btn-icon').innerHTML='&#9646;';
+  document.getElementById('btn-txt').textContent='Stop Tracking';
+  document.getElementById('start-btn').classList.add('stop');
+  setMsg('Searching for GPS signal...');
+  startTimer();
+  watchId=navigator.geolocation.watchPosition(onPos,onErr,
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
 
-function resetAll() {
-maxSpd=0; samples=[]; dist=0; lastPos=null;
-document.getElementById('st-time').textContent='00:00';
-if (timerInt) { clearInterval(timerInt); if (tracking) startTimer(); }
-render(curSpd);
-setMsg('✅ Stats reset!','ok');
-setTimeout(()=>setMsg(tracking?'🟢 Live GPS tracking active!':'Tap Start & allow location to begin! 🚀',
-tracking?'ok':''), 1800);
+function stop(){
+  tracking=false;
+  if(watchId!==null){ navigator.geolocation.clearWatch(watchId); }
+  clearInterval(timerInt);
+  curSpd=0;
+  document.getElementById('btn-icon').innerHTML='&#9654;';
+  document.getElementById('btn-txt').textContent='Start Tracking';
+  document.getElementById('start-btn').classList.remove('stop');
+  document.getElementById('dot').className='dot';
+  render(0);
+  setMsg('Tracking stopped');
 }
 
-function setMsg(t, type='') {
-const el = document.getElementById('msg');
-el.textContent = t; el.className = type;
+function resetAll(){
+  maxSpd=0; samples=[]; dist=0; lastPos=null;
+  document.getElementById('st-time').textContent='00:00';
+  if(timerInt){ clearInterval(timerInt); if(tracking){ startTimer(); } }
+  render(curSpd);
+  setMsg('Stats reset!','ok');
+  setTimeout(function(){
+    setMsg(tracking?'Live GPS tracking active!':'Tap Start and allow location to begin!',
+           tracking?'ok':'');
+  },1800);
 }
 
-// ── WAKE LOCK ────────────────────────────────────────────────
-(async()=>{ if('wakeLock' in navigator) try{ await navigator.wakeLock.request('screen'); }catch(e){} })();
+function setMsg(t,type){
+  var el=document.getElementById('msg');
+  el.textContent=t;
+  el.className=type||'';
+}
+
+if('wakeLock' in navigator){
+  navigator.wakeLock.request('screen').catch(function(){});
+}
 </script>
 </body>
-</html>
 </html>
